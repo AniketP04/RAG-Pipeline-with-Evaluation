@@ -124,8 +124,6 @@ Comprehensive evaluation on 15 diverse ML/AI questions across difficulty levels.
 
 ## 🏗️ Architecture
 
-### High-Level System Design
-
 <img width="2451" height="2275" alt="image" src="https://github.com/user-attachments/assets/d4738aaf-e154-4e0c-a503-466b9d5a4bf0" />
 
 ### Data Flow
