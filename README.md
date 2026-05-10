@@ -125,34 +125,8 @@ Comprehensive evaluation on 15 diverse ML/AI questions across difficulty levels.
 ## 🏗️ Architecture
 
 ### High-Level System Design
-```
-┌──────────────────────────────────────────────────┐
-│                  Client Layer                     │
-│         (Browser, cURL, Python SDK)              │
-└────────────────────┬─────────────────────────────┘
-                     │
-                     ▼
-┌──────────────────────────────────────────────────┐
-│               FastAPI REST API                    │
-│  ┌─────────────────────────────────────────┐    │
-│  │         Request Handler                  │    │
-│  └────────────────┬────────────────────────┘    │
-│                   │                              │
-│                   ▼                              │
-│            ┌─────────────┐                      │
-│            │ Retrieval   │                      │
-│            │ Engine      │                      │
-│            └─────┬───────┘                      │
-│                  │                              │
-│    ┌─────────────┼─────────────┐                │
-│    ▼             ▼             ▼                │
-│ ┌─────────┐   ┌─────────┐   ┌────────┐         │
-│ │  FAISS  │   │  BM25   │   │ OpenAI │         │
-│ │ Vector  │   │ Keyword │   │  API   │         │
-│ │ Search  │   │ Search  │   │        │         │
-│ └─────────┘   └─────────┘   └────────┘         │
-└──────────────────────────────────────────────────┘
-```
+
+<img width="2451" height="2275" alt="image" src="https://github.com/user-attachments/assets/d4738aaf-e154-4e0c-a503-466b9d5a4bf0" />
 
 ### Data Flow
 
@@ -348,8 +322,6 @@ docker run -p 8000:8000 --env-file .env rag-system
 ```
 
 **Access the API:** http://localhost:8000/docs
-
----
 
 ---
 
