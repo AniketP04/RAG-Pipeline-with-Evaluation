@@ -8,7 +8,7 @@ A production-ready RAG system that combines semantic vector search (FAISS) with 
 
 ### Key Achievements
 
-- ✅ **7,712 documents indexed** from ArXiv ML/AI papers
+- ✅ **7,712 documents indexed** from [ArXiv ML/AI papers](https://huggingface.co/datasets/ccdv/arxiv-summarization)
 - ✅ **<2s query latency** with hybrid retrieval
 - ✅ **100% answer faithfulness** - no hallucinations
 - ✅ **Low cost per query** using GPT-4.1-mini
