@@ -14,7 +14,6 @@ fastapi
 uvicorn[standard]
 pydantic
 python-multipart
-redis
 prometheus-client
 prometheus-fastapi-instrumentator
 python-dotenv

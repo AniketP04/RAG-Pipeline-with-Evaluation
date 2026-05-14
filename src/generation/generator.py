@@ -1,12 +1,36 @@
+"""Answer generation module for RAG system.
+
+Generates natural language answers based on retrieved context chunks,
+using OpenAI's GPT models.
+"""
+
 import os
 from typing import List, Dict, Tuple
 from openai import OpenAI
 
 class AnswerGenerator:
+    """Generate answers from context using LLM.
+    
+    Combines retrieved context chunks with user questions to generate
+    coherent, cited answers using OpenAI's GPT models.
+    
+    Attributes:
+        client: OpenAI API client
+        model: LLM model name for generation
+        system_prompt: Instructions for the model
+    """
     def __init__(self, model: str = "gpt-4.1-mini-2025-04-14"):
+        """Initialize answer generator.
+        
+        Args:
+            model: LLM model to use (default: gpt-4.1-mini-2025-04-14)
+        
+        Raises:
+            ValueError: If OPENAI_API_KEY environment variable not found
+        """
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
-            raise ValueError("❌ OPENAI_API_KEY not found in .env file")
+            raise ValueError("OPENAI_API_KEY not found in .env file")
 
         self.client = OpenAI(api_key=api_key)
         self.model = model
@@ -22,6 +46,14 @@ Rules:
 """
 
     def _format_context(self, chunks: List[Tuple[Dict, float]]) -> str:
+        """Format retrieved chunks as numbered context for LLM.
+        
+        Args:
+            chunks: List of (chunk_dict, score) tuples
+        
+        Returns:
+            str: Formatted context string with numbered references
+        """
         context_parts = []
 
         for i, (chunk, score) in enumerate(chunks, 1):
@@ -35,6 +67,16 @@ Rules:
         retrieved_chunks: List[Tuple[Dict, float]],
         max_tokens: int = 500
     ) -> Dict:
+        """Generate answer from question and retrieved context.
+        
+        Args:
+            question: User's question
+            retrieved_chunks: List of (chunk_dict, relevance_score) tuples
+            max_tokens: Maximum tokens in generated answer (default: 500)
+        
+        Returns:
+            Dict: Contains 'question', 'answer', 'sources', 'model', 'tokens_used'
+        """
 
         context = self._format_context(retrieved_chunks)
 

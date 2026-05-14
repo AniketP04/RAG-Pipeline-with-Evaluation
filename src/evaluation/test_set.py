@@ -1,9 +1,22 @@
+"""Test set management for RAG system evaluation.
+
+Provides pre-defined test questions across multiple categories and difficulty
+levels for comprehensive system evaluation.
+"""
+
 from typing import List, Dict
 import json
 from pathlib import Path
 
 class TestSetGenerator:
-    """Generate and manage test questions"""
+    """Create and manage comprehensive test question sets.
+    
+    Contains 15 test questions covering various ML topics with different
+    difficulty levels and categories for thorough RAG system evaluation.
+    
+    Attributes:
+        test_questions: List of test question dictionaries
+    """
     
     
     def __init__(self):
@@ -11,7 +24,12 @@ class TestSetGenerator:
     
    
     def _create_test_set(self) -> List[Dict]:
-        """Create a comprehensive test set"""
+        """Create curated test set of ML questions.
+        
+        Returns:
+            List[Dict]: Test questions with format:
+                {'question': str, 'category': str, 'difficulty': str}
+        """
         return [
             {
                 'question': 'What is machine learning?',
@@ -91,11 +109,22 @@ class TestSetGenerator:
         ]
     
     def get_test_set(self) -> List[Dict]:
-        """Get the full test set"""
+        """Retrieve all test questions.
+        
+        Returns:
+            List[Dict]: Complete test question set
+        """
         return self.test_questions
     
     def get_by_difficulty(self, difficulty: str) -> List[Dict]:
-        """Get questions by difficulty"""
+        """Filter test questions by difficulty level.
+        
+        Args:
+            difficulty: Difficulty level to filter ('easy', 'medium', 'hard')
+        
+        Returns:
+            List[Dict]: Questions matching the specified difficulty
+        """
         return [q for q in self.test_questions if q['difficulty'] == difficulty]
     
     def get_by_category(self, category: str) -> List[Dict]:
@@ -110,4 +139,4 @@ class TestSetGenerator:
         with open(output_path, 'w') as f:
             json.dump(self.test_questions, f, indent=2)
         
-        print(f"✅ Saved {len(self.test_questions)} test questions to {filepath}")
+        print(f"Saved {len(self.test_questions)} test questions to {filepath}")

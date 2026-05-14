@@ -1,3 +1,9 @@
+"""Visualization script for RAG evaluation results.
+
+Generates charts and visualizations from evaluation metrics including
+quality metrics, performance metrics, and latency distributions.
+"""
+
 import json
 import seaborn as sns
 import pandas as pd
@@ -23,9 +29,21 @@ aggregate = data['aggregate_metrics']
 output_dir = Path('data/evaluation/charts')
 output_dir.mkdir(parents=True, exist_ok=True)
 
-print("📊 Creating visualizations...")
+print("Creating visualizations...")
 
-# 1. Quality Metrics Bar Chart
+'''
+Quality Metrics Bar Chart (Relevancy, Faithfulness, Precision, Overall Score)
+
+    - Answer Relevancy: How well the response directly addresses the user’s question or intent.
+
+    - Faithfulness: How accurately the response reflects the provided source/context without adding false information.
+
+    - Context Precision: How effectively the response uses only the relevant parts of the context while avoiding irrelevant details.
+
+    - Overall Quality: The combined measure of correctness, clarity, completeness, and usefulness of the response.
+
+'''
+
 print("  Creating quality metrics chart...")
 fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -55,8 +73,21 @@ plt.tight_layout()
 plt.savefig(output_dir / '1_quality_metrics.png', dpi=300, bbox_inches='tight')
 plt.close()
 
-# 2. Performance Metrics
-print("  Creating performance metrics chart...")
+'''
+Performance Metrics
+
+    - Avg Latency (ms): The average time the system takes to respond to requests, measured in milliseconds.
+
+    - p95 Latency (ms): 95% of requests are completed within this response time.
+
+    - p99 Latency (ms): 99% of requests are completed within this response time, showing worst-case performance for most users.
+
+    - Avg Tokens/Query: The average number of input and output tokens used for each request.
+
+    - Cost per Query: The average monetary cost incurred to process a single request/query.
+
+'''
+print("Creating performance metrics chart...")
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
 # Latency
@@ -90,7 +121,7 @@ plt.savefig(output_dir / '2_performance_metrics.png', dpi=300, bbox_inches='tigh
 plt.close()
 
 # 3. Distribution Charts
-print("  Creating distribution charts...")
+print("Creating distribution charts...")
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(14, 10))
 
 # Relevancy distribution
@@ -134,7 +165,7 @@ plt.savefig(output_dir / '3_distributions.png', dpi=300, bbox_inches='tight')
 plt.close()
 
 # 4. Performance by Category
-print("  Creating category analysis...")
+print("Creating category analysis...")
 df = pd.DataFrame([
     {
         'category': r['category'],
@@ -174,7 +205,7 @@ plt.savefig(output_dir / '4_category_analysis.png', dpi=300, bbox_inches='tight'
 plt.close()
 
 # 5. Summary Dashboard
-print("  Creating summary dashboard...")
+print("Creating summary dashboard...")
 fig = plt.figure(figsize=(16, 10))
 gs = fig.add_gridspec(3, 3, hspace=0.3, wspace=0.3)
 
@@ -248,8 +279,8 @@ ax7.axis('off')
 plt.savefig(output_dir / '5_dashboard.png', dpi=300, bbox_inches='tight')
 plt.close()
 
-print("\n✅ All charts created!")
-print(f"📁 Saved to: {output_dir}")
+print("\n All charts created!")
+print(f"Saved to: {output_dir}")
 print("\nGenerated charts:")
 print("  1. Quality Metrics")
 print("  2. Performance Metrics")

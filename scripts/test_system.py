@@ -1,3 +1,9 @@
+"""End-to-end system test for complete RAG pipeline.
+
+Tests the full RAG system from retrieval to generation on sample queries.
+Verifies all components are working correctly.
+"""
+
 import sys
 sys.path.append('src')
 
@@ -9,16 +15,16 @@ from retrieval.hybrid import HybridSearch
 from generation.generator import AnswerGenerator
 
 print("\n" + "="*70)
-print("🧪 COMPLETE SYSTEM TEST")
+print("COMPLETE SYSTEM TEST")
 print("="*70)
 
 # Load search
-print("\n📂 Loading search index...")
+print("\n Loading search index...")
 hybrid = HybridSearch()
 hybrid.load('data/embeddings/hybrid_index')
 
 # Create generator
-print("🤖 Initializing answer generator...")
+print("Initializing answer generator...")
 generator = AnswerGenerator()
 
 # Test questions
@@ -38,27 +44,27 @@ for i, question in enumerate(questions, 1):
     
     # Retrieve
     chunks = hybrid.search(question, k=5)
-    print(f"✅ Retrieved {len(chunks)} relevant chunks")
+    print(f"Retrieved {len(chunks)} relevant chunks")
     
     # Generate
     result = generator.generate(question, chunks)
     
-    print(f"\n💬 ANSWER:")
+    print(f"\n ANSWER:")
     print(result['answer'])
     
-    print(f"\n📊 STATS:")
+    print(f"\n STATS:")
     print(f"   • Tokens used: {result['tokens_used']}")
     print(f"   • Sources: {len(result['sources'])}")
     print(f"   • Model: {result['model']}")
 
 print("\n" + "="*70)
-print("✅ COMPLETE SYSTEM TEST PASSED!")
+print("COMPLETE SYSTEM TEST PASSED!")
 print("="*70)
-print("\n🎉 Your RAG system is fully operational!")
-print("\n📝 What you've built:")
+print("\n Your RAG system is fully operational!")
+print("\n What you've built:")
 print("   • Hybrid search (vector + keyword)")
 print("   • 7,712 chunks indexed")
 print("   • GPT-4.1 mini for answers")
 print("   • Complete RAG pipeline")
-print("\n💼 Ready for your resume!")
+print("\n Ready for your resume!")
 print()

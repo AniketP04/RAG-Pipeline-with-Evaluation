@@ -1,3 +1,23 @@
+"""FastAPI server for Retrieval-Augmented Generation (RAG) system.
+
+This module implements the API endpoints for a production-grade RAG system that combines
+vector search and keyword search for hybrid retrieval, followed by answer generation using LLMs.
+
+Features:
+    - Hybrid search combining vector and keyword search
+    - Answer generation with source attribution
+    - Health checks and system monitoring
+    - Prometheus metrics integration
+    - CORS support for cross-origin requests
+
+Endpoints:
+    - GET /: Root endpoint with API info
+    - POST /query: Main query endpoint for RAG system
+    - GET /health: Health check endpoint
+    - GET /stats: System statistics
+    - GET /metrics: Prometheus metrics
+"""
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import sys
@@ -57,36 +77,46 @@ stats = {
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize components on startup"""
+    """Initialize RAG system components on server startup.
+    
+    Tasks:
+        - Loads pre-built hybrid search index (vector + keyword)
+        - Initializes answer generator with LLM model
+        - Sets up system for query handling
+        - Prints startup status and access information
+    
+    Raises:
+        Exception: If search index or generator initialization fails
+    """
     global search_engine, generator
     
     print("\n" + "="*60)
-    print("🚀 Starting RAG API...")
+    print("Starting RAG API...")
     print("="*60)
     
     # Load search index
     try:
-        print("\n📂 Loading search index...")
+        print("\n Loading search index...")
         search_engine = HybridSearch()
         search_engine.load('data/embeddings/hybrid_index')
-        print("✅ Search index loaded")
+        print("Search index loaded")
     except Exception as e:
-        print(f"❌ Failed to load search index: {e}")
+        print(f" Failed to load search index: {e}")
         raise
     
     # Initialize generator
     try:
-        print("🤖 Initializing generator...")
+        print("Initializing generator...")
         generator = AnswerGenerator()
-        print("✅ Generator initialized")
+        print("Generator initialized")
     except Exception as e:
-        print(f"❌ Failed to initialize generator: {e}")
+        print(f" Failed to initialize generator: {e}")
         raise
     
     print("\n" + "="*60)
-    print("✅ RAG API READY!")
+    print("RAG API READY!")
     print("="*60)
-    print("\n🌐 Access the API:")
+    print("\n Access the API:")
     print("   Docs:       http://localhost:8000/docs")
     print("   Health:     http://localhost:8000/health")
     print("   Metrics:    http://localhost:8000/metrics")
@@ -94,7 +124,11 @@ async def startup_event():
 
 @app.get("/")
 async def root():
-    """Root endpoint"""
+    """Return API information.
+    
+    Returns:
+        dict: API metadata including version and endpoints
+    """
     return {
         "message": "RAG System API",
         "version": "1.0.0",
@@ -106,10 +140,15 @@ async def root():
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
     """Health check endpoint"""
+
+    index_ok = search_engine is not None
+
+    status = "healthy" if index_ok else "unhealthy"
+
     return HealthResponse(
-        status="healthy",
+        status=status,
         version="1.0.0",
-        index_loaded=search_engine is not None,
+        index_loaded=index_ok,
         total_chunks=len(search_engine.vector_search.chunks) if search_engine else 0
     )
 

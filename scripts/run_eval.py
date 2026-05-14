@@ -1,3 +1,17 @@
+"""Comprehensive RAG system evaluation script.
+
+Runs evaluation on all test questions, computes quality and performance
+metrics, and generates results report.
+
+
+Metrics computed:
+    - Answer Relevancy (0-5): How well answers address questions
+    - Faithfulness (0-1): Whether answers are grounded in context
+    - Context Precision (0-1): Percentage of relevant retrieved chunks
+    - Latency: Response time metrics (avg, p95, p99)
+    - Token Usage: LLM token consumption
+"""
+
 import sys
 sys.path.append('src')
 
@@ -13,11 +27,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 print("\n" + "="*70)
-print("📊 COMPREHENSIVE RAG EVALUATION")
+print("COMPREHENSIVE RAG EVALUATION")
 print("="*70)
 
 # Load components
-print("\n📂 Loading system components...")
+print("\n Loading system components...")
 search = HybridSearch()
 search.load('data/embeddings/hybrid_index')
 
@@ -25,10 +39,10 @@ generator = AnswerGenerator()
 evaluator = RAGEvaluator()
 
 # Get test set
-print("📝 Loading test questions...")
+print("Loading test questions...")
 test_gen = TestSetGenerator()
 test_questions = test_gen.get_test_set()
-print(f"✅ Loaded {len(test_questions)} test questions")
+print(f"Loaded {len(test_questions)} test questions")
 
 # Run evaluation
 results = []
@@ -80,12 +94,12 @@ for i, test_item in enumerate(test_questions, 1):
     results.append(result)
     
     # Print metrics
-    print(f"  ✅ Relevancy: {metrics['answer_relevancy']:.2f}/5")
-    print(f"  ✅ Faithfulness: {metrics['faithfulness']:.0%}")
-    print(f"  ✅ Precision: {metrics['context_precision']:.0%}")
-    print(f"  ✅ Overall: {metrics['overall_score']:.0%}")
-    print(f"  ⏱ Time: {result['performance']['total_time_ms']:.0f}ms")
-    print(f"  🔢 Tokens: {result['performance']['tokens_used']}")
+    print(f" Relevancy: {metrics['answer_relevancy']:.2f}/5")
+    print(f" Faithfulness: {metrics['faithfulness']:.0%}")
+    print(f" Precision: {metrics['context_precision']:.0%}")
+    print(f" Overall: {metrics['overall_score']:.0%}")
+    print(f" Time: {result['performance']['total_time_ms']:.0f}ms")
+    print(f" Tokens: {result['performance']['tokens_used']}")
 
 total_time = time.time() - total_start
 
@@ -108,23 +122,23 @@ aggregate = {
     'total_evaluation_time_s': total_time
 }
 
-print(f"\n📊 Quality Metrics:")
+print(f"\n Quality Metrics:")
 print(f"  Answer Relevancy:    {aggregate['avg_relevancy']:.2f}/5.0")
 print(f"  Faithfulness:        {aggregate['avg_faithfulness']:.1%}")
 print(f"  Context Precision:   {aggregate['avg_precision']:.1%}")
 print(f"  Overall Score:       {aggregate['avg_overall_score']:.1%}")
 
-print(f"\n⚡ Performance Metrics:")
+print(f"\n Performance Metrics:")
 print(f"  Avg Latency:         {aggregate['avg_latency_ms']:.0f}ms")
 print(f"  P95 Latency:         {aggregate['p95_latency_ms']:.0f}ms")
 print(f"  P99 Latency:         {aggregate['p99_latency_ms']:.0f}ms")
 
-print(f"\n💰 Cost Metrics:")
+print(f"\n Cost Metrics:")
 print(f"  Total Tokens:        {aggregate['total_tokens']:,}")
 print(f"  Avg Tokens/Query:    {aggregate['avg_tokens_per_query']:.0f}")
 print(f"  Est. Cost:           ${aggregate['total_tokens'] * 0.00000025:.4f}")
 
-print(f"\n⏱ Evaluation Time:    {aggregate['total_evaluation_time_s']:.1f}s")
+print(f"\n Evaluation Time:    {aggregate['total_evaluation_time_s']:.1f}s")
 
 # Save results
 output_dir = Path('data/evaluation')
@@ -139,8 +153,8 @@ output_path = output_dir / 'evaluation_results.json'
 with open(output_path, 'w') as f:
     json.dump(output, f, indent=2)
 
-print(f"\n💾 Results saved to: {output_path}")
+print(f"\n Results saved to: {output_path}")
 
 print("\n" + "="*70)
-print("✅ EVALUATION COMPLETE!")
+print("EVALUATION COMPLETE!")
 print("="*70)

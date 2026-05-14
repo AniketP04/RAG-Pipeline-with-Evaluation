@@ -1,3 +1,9 @@
+"""RAG system evaluation metrics using LLM-based assessments.
+
+Provides methods to evaluate answer quality, faithfulness to context, and
+retrieval precision using GPT-4 as an evaluation model.
+"""
+
 from typing import List, Dict
 from openai import OpenAI
 import os
@@ -6,7 +12,25 @@ import time
 
 
 class RAGEvaluator:
+    """Evaluates RAG system responses using multiple quality metrics.
+    
+    Uses OpenAI's GPT model to assess answer relevancy, faithfulness to context,
+    and precision of retrieved chunks.
+    
+    Attributes:
+        client: OpenAI API client
+        model: LLM model name used for evaluation
+    """
+    
     def __init__(self, model: str = "gpt-4.1-mini-2025-04-14"):
+        """Initialize RAG evaluator with OpenAI API.
+        
+        Args:
+            model: LLM model to use for evaluation (default: gpt-4.1-mini-2025-04-14)
+        
+        Raises:
+            ValueError: If OPENAI_API_KEY environment variable is not set
+        """
         api_key = os.getenv("OPENAI_API_KEY")
 
         if not api_key:
@@ -16,7 +40,15 @@ class RAGEvaluator:
         self.model = model
 
     def _ask_llm(self, prompt: str, max_tokens: int = 10) -> str:
-        """Helper function for LLM calls"""
+        """Send prompt to LLM and get response.
+        
+        Args:
+            prompt: Text prompt to send to the model
+            max_tokens: Maximum tokens in the response (default: 10)
+        
+        Returns:
+            str: Stripped response text from the model
+        """
 
         response = self.client.chat.completions.create(
             model=self.model,
@@ -33,7 +65,15 @@ class RAGEvaluator:
         return response.choices[0].message.content.strip()
 
     def answer_relevancy(self, question: str, answer: str) -> float:
-        """Rate answer relevancy 0-5"""
+        """Rate how well the answer addresses the question.
+        
+        Args:
+            question: The user's question
+            answer: The generated answer
+        
+        Returns:
+            float: Relevancy score from 0-5 (higher is better)
+        """
 
         prompt = f"""Rate this answer's relevancy on a scale of 0-5.
 
@@ -60,7 +100,15 @@ Provide ONLY a number between 0 and 5.
             return 0.0
 
     def faithfulness(self, answer: str, context_chunks: List[str]) -> float:
-        """Check if answer is grounded in context (0-1)"""
+        """Check if answer is grounded in provided context without hallucination.
+        
+        Args:
+            answer: The generated answer
+            context_chunks: List of context chunks used for generation
+        
+        Returns:
+            float: Faithfulness score 0-1 (1 = fully grounded, 0 = contains hallucinations)
+        """
 
         context = "\n\n".join(context_chunks[:3])  # Top 3 chunks
 
@@ -86,7 +134,18 @@ Reply ONLY with:
             return 0.0
 
     def context_precision(self, question: str, context_chunks: List[str]) -> float:
-        """What % of retrieved chunks are relevant? (0-1)"""
+        """Calculate precision of retrieved context chunks.
+        
+        Measures what percentage of retrieved chunks are relevant to answering
+        the question.
+        
+        Args:
+            question: The user's question
+            context_chunks: List of retrieved context chunks
+        
+        Returns:
+            float: Precision score 0-1 (1 = all relevant, 0 = none relevant)
+        """
 
         if not context_chunks:
             return 0.0
