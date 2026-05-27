@@ -1,0 +1,23 @@
+
+services:
+  # RAG API Service
+  rag-api:                                                              # Service name for application
+    build: .                                                            # Build Docker image using local Dockerfile
+    container_name: rag-api                                             # Custom container name
+    ports:
+      - "8000:8000"                                                     # Map host port 8000 → container port 8000
+    env_file:
+      - .env                                                            # Load environment variables from .env file
+    volumes:
+      - ./data:/app/data                                                # Mount local data folder into container
+      - ./src:/app/src                                                  # Mount local source code into container
+    
+  # Prometheus for metrics
+  prometheus:
+    image: prom/prometheus:latest                                       # Use official Prometheus Docker image
+    container_name: rag-prometheus                                      # Custom container name for Prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml          # Mount Prometheus config file
+      - prometheus-data:/prometheus                                     # Persistent storage volume for metrics database
