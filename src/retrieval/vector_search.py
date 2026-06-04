@@ -10,6 +10,7 @@ import numpy as np
 from typing import List, Dict, Tuple
 import pickle
 from pathlib import Path
+from collections import OrderedDict
 
 
 class VectorSearch:
@@ -24,7 +25,7 @@ class VectorSearch:
         index: FAISS vector index
         chunks: List of indexed chunks
     """
-    def __init__(self, model_name: str = 'all-MiniLM-L6-v2'):
+    def __init__(self, model_name: str = 'all-MiniLM-L6-v2', cache_size: int = 256):
         """Initialize vector search with embedding model.
         
         Args:
@@ -35,9 +36,37 @@ class VectorSearch:
         self.dimension = self.model.get_sentence_embedding_dimension()
         self.index = None
         self.chunks = None
+        self._query_cache: OrderedDict()
+        self._cache_size = catche_size
         print(f" Model loaded (dimension: {self.dimension})")
     
-    
+
+    def _encode_query(self, query: str) -> np.ndarray:
+        """Encode query with in-memory LRU-style cache to avoid redundant re-encoding.
+
+        Args:
+            query: Query string to encode
+
+        Returns:
+            np.ndarray: Float32 query embedding of shape (1, embedding_dim)
+        """
+        if query in self._query_cache:
+            self._query_cache.move_to_end(query)
+            return self._query_cache[query]
+
+        embedding = self.model.encode(
+            [query],
+            normalize_embeddings=True,
+            convert_to_numpy=True
+        ).astype("float32")
+
+        self._query_cache[query] = embedding
+
+        if len(self._query_cache) > self._cache_size:
+            self._query_cache.popitem(last=False)
+
+        return embedding
+        
     def create_embeddings(self, chunks: List[Dict]) -> np.ndarray:
         """Generate embeddings for chunks.
         
@@ -70,7 +99,7 @@ class VectorSearch:
         embeddings = self.create_embeddings(chunks)
         
         print(f"🏗️ Building FAISS index...")
-        self.index = faiss.IndexFlatL2(self.dimension)
+        self.index = faiss.IndexFlatIP(self.dimension)
         self.index.add(embeddings)
         
         print(f" Index built with {self.index.ntotal} vectors")
@@ -85,13 +114,12 @@ class VectorSearch:
         Returns:
             List[Tuple[Dict, float]]: Top k (chunk, similarity_score) tuples
         """
-        query_embedding = self.model.encode([query]).astype('float32')
+        query_embedding = self._encode_query(query)
         distances, indices = self.index.search(query_embedding, k)
         
         results = []
-        for dist, idx in zip(distances[0], indices[0]):
-            similarity = 1 / (1 + dist)
-            results.append((self.chunks[idx], similarity))
+        for score, idx in zip(scores[0], indices[0]):
+            results.append((self.chunks[idx],  float(score)))
         
         return results
     
